@@ -23,16 +23,18 @@
           Add
         </button>
       </form>
-      <form action="" class="input-wrapper" v-if="hide1">
-        <h2 class="p-1 m-0">Search</h2>
-        <input type="search" class="" v-model="searchText" />
-      </form>
-      <select class="mb-4" v-model="filter" v-if="hide1">
-        <option value="all">All</option>
-        <option value="completed">Completed</option>
-        <option value="not-completed">Not completed</option>
-      </select>
-      <statistics v-bind:items="todoItems" v-if="hide1"></statistics>
+      <template v-if="hide1">
+        <form action="" class="input-wrapper">
+          <h2 class="p-1 m-0">Search</h2>
+          <input type="search" class="" v-model="searchText" />
+        </form>
+        <select class="mb-4" v-model="filter">
+          <option value="all">All</option>
+          <option value="completed">Completed</option>
+          <option value="not-completed">Not completed</option>
+        </select>
+        <statistics v-bind:items="todoItems"></statistics>
+      </template>
       <todolist v-bind:list="filterList "></todolist>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.0/dist/vue.js"></script>
@@ -51,6 +53,9 @@
             }
             return completed;
           },
+          percent() {
+            return Math.ceil((this.completedTasks / this.allTasks) * 100);
+          },
         },
         props: {
           items: Array,
@@ -58,7 +63,7 @@
         template: `<div class="statistics-wrapper">
         <div class="statistics-wrapper__item">Completed tasks {{ completedTasks }}</div>
         <div class="statistics-wrapper__item">All tasks {{ allTasks }}</div>
-        <div class="statistics-wrapper__item">Percent complete tasklist {{ Math.ceil(completedTasks/allTasks * 100) }} %</div>
+        <div class="statistics-wrapper__item">Percent complete tasklist {{ percent }} %</div>
       </div>`,
       });
       Vue.component("todolist", {
@@ -86,7 +91,6 @@
           inputText: "",
           searchText: "",
           filter: "all",
-          hide: false,
           todoItems: [
             // { id: 1, text: "Бахнуть балтики", done: false },
             // { id: 2, text: "task2", done: false },
@@ -101,8 +105,8 @@
           },
 
           filterList() {
-            let list = this.todoItems.filter((elem) =>
-              elem.text.toLowerCase().startsWith(this.searchText)
+            let list = this.todoItems.filter(
+              (elem) => elem.text.toLowerCase().indexOf(this.searchText) > -1
             );
             if (this.filter === "all") {
               return list;
@@ -127,6 +131,7 @@
               text: name,
               done: false,
             });
+            this.inputText = "";
           },
         },
       });
