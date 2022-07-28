@@ -13,7 +13,7 @@
       <h1>{{ message }}</h1>
       <h2 class="text-center">Please add new task</h2>
       <form action="" class="input-wrapper">
-        <input type="text" class="p-1 mb-0" v-model="inputText" />
+        <input type="text" class="p-1 mb-0" v-model.trim="inputText" />
         <button
           type="button"
           class="btn btn-outline-dark"
