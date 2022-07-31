@@ -11,14 +11,128 @@
   <body>
     <div id="app">
       <h1>{{ message }}</h1>
+      <h2 class="text-center">Please add new task</h2>
+      <form action="" class="input-wrapper">
+        <input type="text" class="p-1 mb-0" v-model.trim="inputText" />
+        <button
+          type="button"
+          class="btn btn-outline-dark"
+          :disabled="!isButtonEnabled"
+          @click="addItem(inputText)"
+        >
+          Add
+        </button>
+      </form>
+      <template v-if="hide1">
+        <form action="" class="input-wrapper">
+          <h2 class="p-1 m-0">Search</h2>
+          <input type="search" class="" v-model="searchText" />
+        </form>
+        <select class="mb-4" v-model="filter">
+          <option value="all">All</option>
+          <option value="completed">Completed</option>
+          <option value="not-completed">Not completed</option>
+        </select>
+        <statistics v-bind:items="todoItems"></statistics>
+      </template>
+      <todolist v-bind:list="filterList "></todolist>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.0/dist/vue.js"></script>
     <script>
+      Vue.component("statistics", {
+        computed: {
+          allTasks() {
+            return this.items.length;
+          },
+          completedTasks() {
+            let completed = 0;
+            for (let i = 0; i < this.items.length; i++) {
+              if (this.items[i].done == true) {
+                completed++;
+              }
+            }
+            return completed;
+          },
+          percent() {
+            return Math.ceil((this.completedTasks / this.allTasks) * 100);
+          },
+        },
+        props: {
+          items: Array,
+        },
+        template: `<div class="statistics-wrapper">
+        <div class="statistics-wrapper__item">Completed tasks {{ completedTasks }}</div>
+        <div class="statistics-wrapper__item">All tasks {{ allTasks }}</div>
+        <div class="statistics-wrapper__item">Percent complete tasklist {{ percent }} %</div>
+      </div>`,
+      });
+      Vue.component("todolist", {
+        props: {
+          list: Array,
+        },
+        template: `<ul class="list-group">
+        <li class="list-group-item" v-for="item in list">
+          <button
+            class="btn"
+            v-bind:id="item.id"
+            v-bind:class="{'btn-success': item.done, 'btn-secondary' : !item.done}"
+            v-on:click="item.done = !item.done"
+          >
+            {{ item.done? 'completed' : 'in order'}}
+          </button>
+          {{ item.text }}
+        </li>
+      </ul>`,
+      });
       new Vue({
         el: "#app",
         data: {
           message: "Hello from Vue App",
+          inputText: "",
+          searchText: "",
+          filter: "all",
+          todoItems: [
+            // { id: 1, text: "Бахнуть балтики", done: false },
+            // { id: 2, text: "task2", done: false },
+            // { id: 3, text: "Поспорить о США", done: true },
+            // { id: 4, text: "task4", done: false },
+            // { id: 5, text: "task 5", done: false },
+          ],
+        },
+        computed: {
+          isButtonEnabled() {
+            return this.inputText !== "";
+          },
+
+          filterList() {
+            let list = this.todoItems.filter(
+              (elem) => elem.text.toLowerCase().indexOf(this.searchText) > -1
+            );
+            if (this.filter === "all") {
+              return list;
+            }
+            if (this.filter === "completed") {
+              return list.filter((value) => value.done);
+            }
+            if (this.filter === "not-completed") {
+              return list.filter((value) => !value.done);
+            }
+          },
+          hide1() {
+            if (this.todoItems.length > 0) {
+              return (this.hide = true);
+            }
+          },
+        },
+        methods: {
+          addItem(name) {
+            this.todoItems.push({
+              id: this.todoItems.length + 1,
+              text: name,
+              done: false,
+            });
+            this.inputText = "";
+          },
         },
       });
     </script>
