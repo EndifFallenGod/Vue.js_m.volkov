@@ -21,3 +21,7 @@ body {
   border-radius: 10px;
   color: #fff;
 }
+
+.input {
+  margin-left: 5px;
+}

@@ -25,7 +25,11 @@
       </select>
       <AppStatistics v-bind:items="todoItems"></AppStatistics>
     </template>
-    <TodoList v-bind:list="filterList" @removeTodo="removeTodo"></TodoList>
+    <TodoList
+      v-bind:list="filterList"
+      @removeTodo="removeTodo"
+      :changeEditing="changeEditing"
+    ></TodoList>
   </div>
 </template>
 
@@ -41,6 +45,7 @@ export default {
       inputText: "",
       searchText: "",
       filter: "all",
+      // editValue: "",
       todoItems: [
         // { id: 1, text: "Бахнуть балтики", done: false },
         // { id: 2, text: "task2", done: false },
@@ -90,6 +95,7 @@ export default {
         id: this.todoItems.length + 1,
         text: name,
         done: false,
+        isEditing: false,
       });
       localStorage.setItem("todoItems", JSON.stringify(this.todoItems));
       this.inputText = "";
@@ -97,6 +103,13 @@ export default {
     removeTodo(index) {
       this.todoItems.splice(index, 1);
       localStorage.setItem("todoItems", JSON.stringify(this.todoItems));
+    },
+    changeEditing(taskText) {
+      this.todoItems.map((item) => {
+        if (item.id == taskText.id) {
+          item.text = taskText.text;
+        }
+      });
     },
   },
 };
